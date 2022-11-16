@@ -9,13 +9,20 @@ import (
 
 // ListBookTickersService list best price/qty on the order book for a symbol or symbols
 type ListBookTickersService struct {
-	c      *Client
-	symbol *string
+	c       *Client
+	symbol  *string
+	symbols []string
 }
 
 // Symbol set symbol
 func (s *ListBookTickersService) Symbol(symbol string) *ListBookTickersService {
 	s.symbol = &symbol
+	return s
+}
+
+// Symbols set symbols
+func (s *ListBookTickersService) Symbols(symbols []string) *ListBookTickersService {
+	s.symbols = symbols
 	return s
 }
 
@@ -27,6 +34,9 @@ func (s *ListBookTickersService) Do(ctx context.Context, opts ...RequestOption) 
 	}
 	if s.symbol != nil {
 		r.setParam("symbol", *s.symbol)
+	} else if s.symbols != nil {
+		s, _ := json.Marshal(s.symbols)
+		r.setParam("symbols", string(s))
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	data = common.ToJSONList(data)
